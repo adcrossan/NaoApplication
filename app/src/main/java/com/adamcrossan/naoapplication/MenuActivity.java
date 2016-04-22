@@ -1,7 +1,10 @@
 package com.adamcrossan.naoapplication;
 
 import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -14,7 +17,7 @@ import android.widget.Toast;
 public class MenuActivity extends AppCompatActivity {
 
     Spinner userSpinner ;
-    public final static String EXTRA_MESSAGE = "BLANK";
+    public final static String EXTRA_MESSAGE = "";
     String message  = "";
     final BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -26,7 +29,15 @@ public class MenuActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Lyit Navigational Service");
         turnOn(this);
-        fillUserSpinner();
+
+        if ( isConnectedToInternet())
+        {
+            fillUserSpinner();
+
+        }
+        else {
+            Toast.makeText(this, "No internet Conectivity please connect to the internet to continue", Toast.LENGTH_LONG).show();
+        }
         userSpinner = (Spinner)findViewById(R.id.userSpinner);
 
     }
@@ -53,6 +64,22 @@ public class MenuActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    public boolean isConnectedToInternet(){
+        ConnectivityManager connectivity = (ConnectivityManager)getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivity != null)
+        {
+            NetworkInfo[] info = connectivity.getAllNetworkInfo();
+            if (info != null)
+                for (int i = 0; i < info.length; i++)
+                    if (info[i].getState() == NetworkInfo.State.CONNECTED)
+                    {
+                        return true;
+                    }
+
+        }
+        return false;
+    }
+
     public void turnOn(MenuActivity view) {
         if (!mBluetoothAdapter.isEnabled())
         {
@@ -75,13 +102,19 @@ public class MenuActivity extends AppCompatActivity {
     }
 
     public void findClass(View view) {
+        String username = userSpinner.getSelectedItem().toString();
+
+        String i="hi";
         Intent intent = new Intent(this, CurrentClassroomActivity.class);
-        intent.putExtra(EXTRA_MESSAGE, message);
+        //Create the bundle
+        Bundle b = new Bundle();
+        //Add your data to bundle
+        b.putString("stuff", username);
+        intent.putExtras(b);
         startActivity(intent);
     }
 
     public void fillUserSpinner() {
-       String method = "fillUserSpinner";
         FillUserTask fillUserTask = new FillUserTask(this, this);
         fillUserTask.execute();
     }

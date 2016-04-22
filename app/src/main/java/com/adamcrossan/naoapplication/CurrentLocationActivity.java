@@ -1,6 +1,8 @@
 package com.adamcrossan.naoapplication;
 
 import android.Manifest;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,6 +13,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,6 +36,7 @@ public class CurrentLocationActivity extends  AppCompatActivity implements NAOLo
     public static final String API_KEY = "lRl5ZwBA75erb8Byziyk1g";
     private double lat = 0;
     private double lon = 0;
+    private double alt = 0 ;
     private Intent intent ;
     Toast toast ;
     WebView mymap ;
@@ -94,6 +98,7 @@ public class CurrentLocationActivity extends  AppCompatActivity implements NAOLo
     }
 
     public void notifyUser(String msg){
+        Toast.makeText(this, msg , Toast.LENGTH_LONG).show();
     }
 
 
@@ -105,19 +110,27 @@ public class CurrentLocationActivity extends  AppCompatActivity implements NAOLo
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("Get Current Classroom");
+        getSupportActionBar().setTitle("Get Current Location");
 
 
         NAOLocationHandle handle = new NAOLocationHandle(this, MyNaoService.class, API_KEY, this, this);
         checkPermissions();
 
          intent = getIntent();
+       /* MapFragment fragment = new MapFragment();
+        FragmentManager fragmentManager = getFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.container, fragment);
+        fragmentTransaction.commit();*/
 
 
         mymap = (WebView)findViewById(R.id.mymap);
-        //final MyJavaScriptInterface myJavaScriptInterface = new MyJavaScriptInterface(this);
+        WebSettings settings = mymap.getSettings();
+        settings.setAllowFileAccessFromFileURLs(true);
+        settings.setAllowUniversalAccessFromFileURLs(true);
         mymap.getSettings().setJavaScriptEnabled(true);
-        mymap.loadUrl("file:///android_asset/mapCurrentLocation.html");
+        mymap.loadUrl("file:///android_asset/mapLocationMe.php");
+
 
 
         NAOSyncListener naoSyncListener = new NAOSyncListener() {
@@ -149,7 +162,6 @@ public class CurrentLocationActivity extends  AppCompatActivity implements NAOLo
         //TextView textView = (TextView)findViewById(R.id.coordin);
 
         //textView.setText("Error in recieving co-ordinated \nPlease try again later");
-
     }
 
     @Override
@@ -159,15 +171,14 @@ public class CurrentLocationActivity extends  AppCompatActivity implements NAOLo
 
         lat = location.getLatitude();
         lon = location.getLongitude();
+        alt = location.getAltitude();
 
-        toast.makeText(getApplicationContext(), "LAT = " + lat +"\n"+ "LONG = " + lon ,Toast.LENGTH_SHORT ).show();
+        AddCoTask addCoTask = new AddCoTask(this);
+        String latS = String.valueOf(lat);
+        String lonS = String.valueOf(lon);
+        String altS = String.valueOf(alt);
 
-        // textVie = (TextView)findViewById(R.id.coordin);
-
-        //textView.setText("LAT " + lat + ", LON " + lon + ", ALT: " + location.getAltitude() + ", BEA: " + location.getBearing());
-
-       // DisplayFragment textFragment = (DisplayFragment) getSupportFragmentManager().findFragmentById(R.id.Display_fragment);
-       // textFragment.changeText("LAT " + lat + ",\nLON " + lon );
+        addCoTask.execute(latS, lonS, altS);
     }
 
     @Override

@@ -36,7 +36,7 @@ public class FillUserTask extends AsyncTask<String, String, JSONObject> {
         }
 
         @Override
-        protected JSONObject doInBackground(String... args) {
+        protected JSONObject doInBackground(String... params) {
             JSONParser jParser = new JSONParser();
 
             // Getting JSON from URL
@@ -63,8 +63,6 @@ public class FillUserTask extends AsyncTask<String, String, JSONObject> {
 
                     mySpinner.setAdapter(new ArrayAdapter<String>(context, android.R.layout.simple_spinner_dropdown_item, items));
                 }
-
-
 
             } catch (JSONException e) {
                 e.printStackTrace();

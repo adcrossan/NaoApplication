@@ -9,10 +9,12 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Toast;
 
@@ -29,18 +31,25 @@ import com.polestar.naosdk.api.external.NAOSensorsListener;
 import com.polestar.naosdk.api.external.NAOSyncListener;
 import com.polestar.naosdk.api.external.TNAOFIXSTATUS;
 
+import java.util.Calendar;
+
 public class CurrentClassroomActivity extends AppCompatActivity implements NAOLocationListener, NAOSensorsListener {
 
 
     public static final String API_KEY = "lRl5ZwBA75erb8Byziyk1g";
     private double lat = 0;
     private double lon = 0;
+    private double alt = 0 ;
     private Intent intent ;
+    private String weekDay, username ;
+    private String setNo ;
+    Calendar c = Calendar.getInstance();
     WebView mymap ;
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
      */
+
     private GoogleApiClient client;
     private static final int PERMISSION_REQUEST_CODE = 0;
 
@@ -103,42 +112,66 @@ public class CurrentClassroomActivity extends AppCompatActivity implements NAOLo
         setContentView(R.layout.activity_current_classroom);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getDay();
+        getTimeSet();
+        Log.d(this.getClass().getName(), "*************** Set No  = " + setNo + "***************");
+        if (weekDay.equals("Saturday") ||weekDay.equals("Sunday") ||setNo == null )
+        {
+            Toast.makeText(this, "You currently are not sceduled for any classes", Toast.LENGTH_LONG).show();
+            finish();
+        }
+        else {
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("Get Current Classroom");
+            Bundle bundle = getIntent().getExtras();
+            username = bundle.getString("stuff");
+            Log.d(this.getClass().getName(), "*************** " + username + "***************");
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle("Get Current Classroom");
 
-        NAOLocationHandle handle = new NAOLocationHandle(this, MyNaoService.class, API_KEY, this, this);
-        checkPermissions();
+            NAOLocationHandle handle = new NAOLocationHandle(this, MyNaoService.class, API_KEY, this, this);
+            checkPermissions();
+            intent = getIntent();
 
-        intent = getIntent();
+            getLocationTask getLoTask = new getLocationTask(this);
+            AddCoTask addCoTask = new AddCoTask(this);
+
+            String latS = String.valueOf(lat);
+            String lonS = String.valueOf(lon);
+            String altS = String.valueOf(alt);
+
+            Log.d(this.getClass().getName(), "about to execute");
+            getLoTask.execute(username, weekDay, setNo);
+            addCoTask.execute(latS, lonS, altS);
+
+            mymap = (WebView) findViewById(R.id.mymap);
+            WebSettings settings = mymap.getSettings();
+            settings.setAllowFileAccessFromFileURLs(true);
+            settings.setAllowUniversalAccessFromFileURLs(true);
+            mymap.getSettings().setJavaScriptEnabled(true);
+            mymap.loadUrl("file:///android_asset/mapLocation2.php");
 
 
-        mymap = (WebView)findViewById(R.id.mymap);
-        //final MyJavaScriptInterface myJavaScriptInterface = new MyJavaScriptInterface(this);
-        mymap.getSettings().setJavaScriptEnabled(true);
-        mymap.loadUrl("file:///android_asset/mapCurrentLocation.html");
+            NAOSyncListener naoSyncListener = new NAOSyncListener() {
+                @Override
+                public void onSynchronizationSuccess() {
+
+                    Log.d(this.getClass().getName(), "onSynchronizationSuccess");
+                }
 
 
-        NAOSyncListener naoSyncListener = new NAOSyncListener() {
-            @Override
-            public void onSynchronizationSuccess() {
+                @Override
+                public void onSynchronizationFailure(NAOERRORCODE naoerrorcode, String message) {
 
-                Log.d(this.getClass().getName(), "onSynchronizationSuccess");
-            }
+                    Log.d(this.getClass().getName(), "onSynchronizationFailure: " + message);
+                }
+            };
+            handle.synchronizeData(naoSyncListener);
+            handle.start();
+            // ATTENTION: This was auto-generated to implement the App Indexing API.
+            // See https://g.co/AppIndexing/AndroidStudio for more information.
 
-
-            @Override
-            public void onSynchronizationFailure(NAOERRORCODE naoerrorcode, String message) {
-
-                Log.d(this.getClass().getName(), "onSynchronizationFailure: " + message);
-            }
-        };
-        handle.synchronizeData(naoSyncListener);
-        handle.start();
-        // ATTENTION: This was auto-generated to implement the App Indexing API.
-        // See https://g.co/AppIndexing/AndroidStudio for more information.
-
-        client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+            client = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+        }
     }
     @Override
     public void onError(NAOERRORCODE naoerrorcode, String s) {
@@ -157,13 +190,14 @@ public class CurrentClassroomActivity extends AppCompatActivity implements NAOLo
 
         lat = location.getLatitude();
         lon = location.getLongitude();
+        alt = location.getAltitude();
 
-        // textView = (TextView)findViewById(R.id.coordin);
 
-        //textView.setText("LAT " + lat + ", LON " + lon + ", ALT: " + location.getAltitude() + ", BEA: " + location.getBearing());
-
-        // DisplayFragment textFragment = (DisplayFragment) getSupportFragmentManager().findFragmentById(R.id.Display_fragment);
-        // textFragment.changeText("LAT " + lat + ",\nLON " + lon );
+        AddCoTask addCoTask = new AddCoTask(this);
+        String latS = String.valueOf(lat);
+        String lonS = String.valueOf(lon);
+        String altS = String.valueOf(alt);
+        addCoTask.execute(latS, lonS, altS);
     }
 
     @Override
@@ -233,6 +267,148 @@ public class CurrentClassroomActivity extends AppCompatActivity implements NAOLo
         );
         AppIndex.AppIndexApi.start(client, viewAction);
     }
+
+    public void getDay()
+    {
+        int day = c.get(Calendar.DAY_OF_WEEK);
+         weekDay = "";
+        switch (day)
+        {
+            case Calendar.MONDAY:
+                weekDay ="Monday";
+                break ;
+            case Calendar.TUESDAY:
+                weekDay ="Tuesday";
+                break ;
+            case Calendar.WEDNESDAY:
+                weekDay ="Wednesday";
+                break ;
+            case Calendar.THURSDAY:
+                weekDay ="Thursday";
+                break ;
+            case Calendar.FRIDAY:
+                weekDay ="Friday";
+                break ;
+            case Calendar.SATURDAY:
+                weekDay ="Saturday";
+                break ;
+            case Calendar.SUNDAY:
+                weekDay ="Sunday";
+                break ;
+        }
+    }
+
+    public String getTimeSet()
+    {
+        Calendar c = Calendar.getInstance();
+        int timeHour = c.get(Calendar.HOUR);
+        int timeMin = c.get(Calendar.MINUTE) ;
+        Toast.makeText(this, String.valueOf(timeHour) + String.valueOf(timeMin) , Toast.LENGTH_LONG).show();
+
+        if (timeHour == 10 || timeHour == 9 )
+        {
+            if (timeMin < 30 )
+            {
+                setNo = null ;
+            }
+            else
+            {
+                setNo = "set1";
+            }
+        }
+        else if (timeHour == 11 || timeHour == 10 )
+        {
+            if (timeMin < 30 )
+            {
+                setNo = "set1" ;
+            }
+            else
+            {
+                setNo = "set2";
+            }
+        }
+        else  if (timeHour == 12 || timeHour == 11 )
+        {
+            if (timeMin < 30 )
+            {
+                setNo = "set2" ;
+            }
+            else
+            {
+                setNo = "set3";
+            }
+        }
+        else if (timeHour == 1 || timeHour == 12 )
+        {
+            if (timeMin < 30 )
+            {
+                setNo = "set3" ;
+            }
+            else
+            {
+                setNo = "set4";
+            }
+        }
+        else if (timeHour == 2 || timeHour == 1 )
+        {
+            if (timeMin < 30 )
+            {
+                setNo = "set4" ;
+            }
+            else
+            {
+                setNo = "set5";
+            }
+        }
+        else if (timeHour == 3 || timeHour == 2 )
+        {
+            if (timeMin < 30 )
+            {
+                setNo = "set5" ;
+            }
+            else
+            {
+                setNo = "set6";
+            }
+        }
+        else if (timeHour == 4 || timeHour == 3 )
+        {
+            if (timeMin < 30 )
+            {
+                setNo = "set6" ;
+            }
+            else
+            {
+                setNo = "set7";
+            }
+        }
+        else if (timeHour == 5 || timeHour == 4)
+        {
+            if (timeMin < 30 )
+            {
+                setNo = "set7" ;
+            }
+            else
+            {
+                setNo = "set8";
+            }
+        }
+        else if (timeHour == 6 || timeHour == 5 )
+        {
+            if (timeMin < 30 )
+            {
+                setNo = "set8" ;
+            }
+            else
+
+                setNo = null;
+        }
+        else
+            setNo = null ;
+        return setNo ;
+
+    }
+
 
     @Override
     public void onStop() {

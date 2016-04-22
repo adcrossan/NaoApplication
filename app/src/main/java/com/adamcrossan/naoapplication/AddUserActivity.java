@@ -18,7 +18,7 @@ import com.adamcrossan.naoapplication.R;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AddUserActivity extends AppCompatActivity /*implements AsyncResponse */{
+public class AddUserActivity extends AppCompatActivity {
 
     private Intent intent ;
     private Spinner courseYearSpin, courseDepSpin, courseSemSpin, courseNameSpin ;
@@ -37,7 +37,6 @@ public class AddUserActivity extends AppCompatActivity /*implements AsyncRespons
         getSupportActionBar().setTitle("Add New User");
 
 
-        //fillCourseNames();
         courseYearSpin = (Spinner)findViewById(R.id.YearSpinner);
         courseSemSpin = (Spinner)findViewById(R.id.SemesterSpinner);
         courseDepSpin = (Spinner)findViewById(R.id.DepartmentSpinner);
@@ -55,8 +54,8 @@ public class AddUserActivity extends AppCompatActivity /*implements AsyncRespons
             courseDep = courseDepSpin.getSelectedItem().toString();
             courseYear = courseYearSpin.getSelectedItem().toString();
             String method = "getCourseNames";
-            AddNewUserTask addNewUserTask = new AddNewUserTask(this);
-            addNewUserTask.execute(method, courseYear, courseDep, courseSem);
+            CourseNamesTask courseNamesTask = new CourseNamesTask(this, this);
+            courseNamesTask.execute( courseYear, courseDep, courseSem);
            // Log.d("dbg", courseName );
            // Toast.makeText(this, courseName, Toast.LENGTH_LONG).show();
        /* }
@@ -66,6 +65,7 @@ public class AddUserActivity extends AppCompatActivity /*implements AsyncRespons
                     "Year, Semester, and Department" , Toast.LENGTH_LONG).show();
         }*/
     }
+
 
     public void addNewUser(View view)
     {
@@ -81,12 +81,6 @@ public class AddUserActivity extends AppCompatActivity /*implements AsyncRespons
         finish();
 
     }
-
-    /*public void processFinish(String output){
-        //Here you will receive the result fired from async class
-        //of onPostExecute(result) method.
-       Toast.makeText(this, output, Toast.LENGTH_LONG).show();
-    }*/
 
 
 }
