@@ -89,6 +89,13 @@ public class MenuActivity extends AppCompatActivity {
         }
     }
 
+    public void onResume()
+    {  // After a pause OR at startup
+        super.onResume();
+        fillUserSpinner();
+        //Refresh your stuff here
+    }
+
     public void GetXY(View view) {
         Intent intent = new Intent(this, CurrentLocationActivity.class);
         intent.putExtra(EXTRA_MESSAGE, message);
@@ -121,9 +128,9 @@ public class MenuActivity extends AppCompatActivity {
 
 
     public void Finish(View view) {
-
         finish();
         mBluetoothAdapter.disable();
+        Toast.makeText(this, "Bluetooth has now been disabled", Toast.LENGTH_LONG).show();
     }
 
 }

@@ -303,9 +303,8 @@ public class CurrentClassroomActivity extends AppCompatActivity implements NAOLo
         Calendar c = Calendar.getInstance();
         int timeHour = c.get(Calendar.HOUR);
         int timeMin = c.get(Calendar.MINUTE) ;
-        Toast.makeText(this, String.valueOf(timeHour) + String.valueOf(timeMin) , Toast.LENGTH_LONG).show();
 
-        if (timeHour == 10 || timeHour == 9 )
+        if ( timeHour == 9 )
         {
             if (timeMin < 30 )
             {
@@ -316,7 +315,7 @@ public class CurrentClassroomActivity extends AppCompatActivity implements NAOLo
                 setNo = "set1";
             }
         }
-        else if (timeHour == 11 || timeHour == 10 )
+        if ( timeHour == 10 )
         {
             if (timeMin < 30 )
             {
@@ -327,7 +326,7 @@ public class CurrentClassroomActivity extends AppCompatActivity implements NAOLo
                 setNo = "set2";
             }
         }
-        else  if (timeHour == 12 || timeHour == 11 )
+        else if (timeHour == 11  )
         {
             if (timeMin < 30 )
             {
@@ -338,7 +337,7 @@ public class CurrentClassroomActivity extends AppCompatActivity implements NAOLo
                 setNo = "set3";
             }
         }
-        else if (timeHour == 1 || timeHour == 12 )
+        else  if (timeHour == 12 )
         {
             if (timeMin < 30 )
             {
@@ -349,7 +348,7 @@ public class CurrentClassroomActivity extends AppCompatActivity implements NAOLo
                 setNo = "set4";
             }
         }
-        else if (timeHour == 2 || timeHour == 1 )
+        else if (timeHour == 1  )
         {
             if (timeMin < 30 )
             {
@@ -360,7 +359,7 @@ public class CurrentClassroomActivity extends AppCompatActivity implements NAOLo
                 setNo = "set5";
             }
         }
-        else if (timeHour == 3 || timeHour == 2 )
+        else if (timeHour == 2  )
         {
             if (timeMin < 30 )
             {
@@ -371,7 +370,7 @@ public class CurrentClassroomActivity extends AppCompatActivity implements NAOLo
                 setNo = "set6";
             }
         }
-        else if (timeHour == 4 || timeHour == 3 )
+        else if (timeHour == 3  )
         {
             if (timeMin < 30 )
             {
@@ -382,7 +381,7 @@ public class CurrentClassroomActivity extends AppCompatActivity implements NAOLo
                 setNo = "set7";
             }
         }
-        else if (timeHour == 5 || timeHour == 4)
+        else if (timeHour == 4  )
         {
             if (timeMin < 30 )
             {
@@ -393,15 +392,12 @@ public class CurrentClassroomActivity extends AppCompatActivity implements NAOLo
                 setNo = "set8";
             }
         }
-        else if (timeHour == 6 || timeHour == 5 )
+        else if (timeHour == 5)
         {
             if (timeMin < 30 )
             {
-                setNo = "set8" ;
+                setNo = "set8";
             }
-            else
-
-                setNo = null;
         }
         else
             setNo = null ;

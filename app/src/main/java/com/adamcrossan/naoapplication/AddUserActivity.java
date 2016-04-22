@@ -48,22 +48,20 @@ public class AddUserActivity extends AppCompatActivity {
 
     public void findCourseNames(View view)
     {
-       /*if (courseDepSpin.getSelectedItemPosition()!= 0 && courseSemSpin.getSelectedItemPosition() !=0 && courseNameSpin.getSelectedItemPosition()!=0 )
-        {*/
+        Log.d("dbg", " Selected Positions, : " + courseDepSpin.getSelectedItemPosition()+" , " + courseSemSpin.getSelectedItemPosition()+ " , " + courseNameSpin.getSelectedItemPosition() );
+
+        if (courseDepSpin.getSelectedItemPosition()!= 0 && courseSemSpin.getSelectedItemPosition() !=0 && courseYearSpin.getSelectedItemPosition()!=0 )
+        {
             courseSem = courseSemSpin.getSelectedItem().toString();
             courseDep = courseDepSpin.getSelectedItem().toString();
             courseYear = courseYearSpin.getSelectedItem().toString();
-            String method = "getCourseNames";
             CourseNamesTask courseNamesTask = new CourseNamesTask(this, this);
-            courseNamesTask.execute( courseYear, courseDep, courseSem);
-           // Log.d("dbg", courseName );
-           // Toast.makeText(this, courseName, Toast.LENGTH_LONG).show();
-       /* }
+            courseNamesTask.execute(courseYear, courseDep, courseSem);
+        }
         else
        {
-            Toast.makeText(this, "Please Eneter a user name and select a \n"+
-                    "Year, Semester, and Department" , Toast.LENGTH_LONG).show();
-        }*/
+            Toast.makeText(this, "Please select a Year, Semester, and Department" , Toast.LENGTH_LONG).show();
+        }
     }
 
 
@@ -76,9 +74,23 @@ public class AddUserActivity extends AppCompatActivity {
         userName = ET_userName.getText().toString();
         String method = "addNewUser";
 
-        AddNewUserTask addNewUserTask = new AddNewUserTask(this);
-        addNewUserTask.execute(method, courseName, courseYear, courseSem, userName);
-        finish();
+        if ( userName.equals("") || userName.equals("Name"))
+        {
+            Toast.makeText(this, "Please enter a username", Toast.LENGTH_SHORT).show();
+        }
+        else
+        {
+            if (courseDepSpin.getSelectedItemPosition()!= 0 && courseSemSpin.getSelectedItemPosition() !=0 && courseYearSpin.getSelectedItemPosition()!=0 && !courseName.equals("Select Course Name"))
+            {
+                AddNewUserTask addNewUserTask = new AddNewUserTask(this);
+                addNewUserTask.execute(method, courseName, courseYear, courseSem, userName);
+                finish();
+            }
+            else
+                Toast.makeText(this, "Please select a Year, Semester, Department and Course", Toast.LENGTH_SHORT).show();
+
+        }
+
 
     }
 

@@ -25,7 +25,7 @@
         android:layout_row="1"
         android:layout_column="1"
         android:paddingTop="17dp"
-        android:layout_marginTop="10dp" />
+        android:layout_marginTop="14dp" />
 
     <Button
         android:layout_height="150dp"
@@ -39,20 +39,8 @@
         android:layout_below="@+id/findClass"
         android:layout_row="2"
         android:layout_column="0"
-        android:layout_marginLeft="15dp" />
-
-    <Button
-        android:layout_height="150dp"
-        android:layout_width="150dp"
-        android:text="@string/button_SetAlarm"
-        android:id="@+id/setAlarm"
-        android:layout_alignBottom="@+id/Emergency"
-        android:layout_alignStart="@+id/findClass"
-        android:layout_alignParentEnd="true"
-        android:layout_below="@+id/findClass"
-        android:layout_row="2"
-        android:layout_column="1"
-        android:paddingBottom="13dp" />
+        android:layout_marginLeft="95dp"
+        android:layout_columnSpan="2" />
 
     <Button
         android:layout_height="wrap_content"

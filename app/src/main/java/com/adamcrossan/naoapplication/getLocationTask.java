@@ -266,16 +266,16 @@ public class getLocationTask extends AsyncTask<String, Void, JSONObject> {
 
             InputStream inputStream = httpURLConnection.getInputStream();
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream, "iso-8859-1"));
-            roomCoor = "" ;
+            String reply = "" ;
             String line = "";
             while ((line = bufferedReader.readLine())!= null)
             {
-                roomCoor += line ;
+                reply += line ;
             }
             bufferedReader.close();
             inputStream.close();
             httpURLConnection.disconnect();
-            Log.d("View", "******************* Room Coor *******" + roomCoor);
+            Log.d("View", "******************* REPLY  *******" + reply);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -288,22 +288,13 @@ public class getLocationTask extends AsyncTask<String, Void, JSONObject> {
     protected void onPostExecute(JSONObject json) {
         try {
             // Getting JSON Array
-            user = json.getJSONArray("Coordinates");
-            final String[] items = new String[user.length()];
-
-            if ( user.length() == 0 )
+            if ( room.equals("outside"))
             {
                 Toast.makeText(ctx, "You Currently are not scheduled for any classes", Toast.LENGTH_LONG).show();
             }
-            else {
-
-                for (int i = 0; i < user.length(); i++) {
-                    JSONObject c = user.getJSONObject(i);
-                    // Storing each json item in variable
-                    String roomNo = c.getString("Location");
-                    Log.d("View", "the user Location is " + roomNo);
-
-                }
+            else
+            {
+                Toast.makeText(ctx, "You are currently in " + room ,Toast.LENGTH_LONG).show();
             }
 
         } catch (Exception e) {
